@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>晨曦科技 · 让连接更有温度</title>
+<style>
+/* ============================================================
+   晨曦科技 —— 一个"正常"的营销网站
+   （越往下滚，越不正常。）
+   ============================================================ */
+:root{
+  --dread:0;                 /* 全局恐怖进度 0 → 1，由滚动驱动 */
+  --accent:#3468ff;
+  --blood:#b3001b;
+  --ink:#17181c;
+  --paper:#faf9f7;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"HarmonyOS Sans SC","PingFang SC","Microsoft YaHei","Source Han Sans SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#fff}
+body.d3 ::selection{background:var(--blood)}
+
+/* 整个页面内容随恐怖进度缓慢褪色、对比度上升 */
+#page{
+  filter:saturate(calc(1 - var(--dread) * .55)) contrast(calc(1 + var(--dread) * .14));
+}
+
+/* ---------- 通用 ---------- */
+.wrap{max-width:1080px;margin:0 auto;width:100%}
+.sec{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:110px 28px;position:relative}
+h1,h2{font-weight:700;letter-spacing:.01em}
+h2{font-size:clamp(1.9rem,4vw,2.7rem);margin:0 0 .5em}
+.sub{color:var(--muted);font-size:1.05rem;line-height:1.9;margin:0 0 40px}
+.center{text-align:center}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- 导航 ---------- */
+nav{
+  position:fixed;top:0;left:0;right;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 40px;
+  transition:background .6s,color .6s,box-shadow .6s;
+}
+nav .logo{font-weight:800;font-size:1.15rem;letter-spacing:.06em;transition:color .8s}
+nav .links{display:flex;gap:28px;font-size:.92rem;color:var(--muted)}
+nav .links a{color:inherit;text-decoration:none;transition:color .5s}
+nav .links a:hover{color:var(--ink)}
+nav .nav-cta{
+  border:none;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;
+  padding:10px 20px;border-radius:999px;cursor:pointer;transition:background .8s,color .8s;
+}
+nav.scrolled{background:rgba(250,249,247,.82);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,0,0,.06)}
+body.d2 nav{background:rgba(10,8,8,.86)}
+body.d2 nav .logo{color:#d5121f}
+body.d2 nav .links, body.d2 nav .links a{color:#7a7171}
+body.d2 nav .nav-cta{background:var(--blood)}
+
+/* ---------- Hero ---------- */
+.hero{min-height:100vh;justify-content:center}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.badge{
+  display:inline-block;font-size:.8rem;color:var(--accent);background:rgba(52,104,255,.09);
+  border:1px solid rgba(52,104,255,.22);padding:6px 14px;border-radius:999px;margin-bottom:22px;
+  transition:color .8s,border-color .8s,background .8s;
+}
+body.d2 .badge{color:var(--blood);background:rgba(179,0,27,.07);border-color:rgba(179,0,27,.3)}
+h1{font-size:clamp(2.5rem,5.6vw,4.3rem);line-height:1.16;margin:.1em 0 .35em}
+.lead{color:var(--muted);font-size:1.1rem;line-height:2;margin:0 0 34px;max-width:34em}
+.btn-row{display:flex;gap:16px;flex-wrap:wrap}
+.btn{
+  display:inline-block;font-size:1rem;font-weight:600;padding:14px 30px;border-radius:12px;
+  cursor:pointer;border:none;text-decoration:none;transition:background .8s,color .8s,transform .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid #d9d6d0}
+body.d2 .btn-primary{background:var(--blood)}
+
+/* 仿真产品截图（纯 CSS） */
+.mock{
+  background:#fff;border:1px solid #e9e6e0;border-radius:18px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(20,20,40,.12);transition:filter 1.2s;
+}
+.mock-bar{display:flex;gap:7px;padding:13px 16px;border-bottom:1px solid #efedE8}
+.mock-bar i{width:10px;height:10px;border-radius:50%;background:#e5e2db}
+.mock-bar i:first-child{background:#ff5f57}.mock-bar i:nth-child(2){background:#febc2e}.mock-bar i:nth-child(3){background:#28c840}
+.mock-body{display:grid;grid-template-columns:120px 1fr;min-height:260px}
+.mock-side{border-right:1px solid #f0eee9;padding:18px 14px;display:flex;flex-direction:column;gap:12px}
+.mock-side i{display:block;height:9px;border-radius:5px;background:#f0eee9}
+.mock-main{padding:18px}
+.mock-chart{display:flex;align-items:flex-end;gap:10px;height:120px;margin-bottom:18px}
+.mock-chart i{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#6c8dff,var(--accent))}
+.mock-rows i{display:block;height:11px;border-radius:6px;background:#f0eee9;margin:12px 0}
+body.d2 .mock{filter:invert(.92) hue-rotate(180deg)}
+
+/* ---------- 信任条 ---------- */
+.logos{min-height:40vh;padding:56px 28px;text-align:center;background:#f6f4f1;border-block:1px solid #efece7}
+.logos .tag{color:var(--muted);font-size:.85rem;letter-spacing:.25em;margin-bottom:26px;transition:color .8s}
+.logos .row{display:flex;justify-content:center;gap:44px;flex-wrap:wrap;color:#b9b4ab;font-weight:700;font-size:1.05rem;letter-spacing:.08em}
+
+/* ---------- 特性 ---------- */
+.features{background:#f2efeb}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
+.card{
+  background:#fff;border:1px solid #eceae5;border-radius:18px;padding:30px 26px;
+  box-shadow:0 12px 34px rgba(20,20,30,.05);
+  transition:transform .3s,box-shadow .3s,background .9s,border-color .9s;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(20,20,30,.09)}
+body.d2 .card{background:#1d1a17;border-color:#2a2521}
+body.d2 .card h3{color:#e8e2d9}
+body.d2 .card p{color:#9b938b}
+.card .ico{font-size:1.7rem;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-size:1.15rem}
+.card p{margin:0;color:var(--muted);line-height:1.9;font-size:.95rem;transition:color .9s}
+
+/* ---------- 数据 ---------- */
+.stats{background:#edeae4}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;text-align:center}
+.stat{padding:26px 12px}
+.stat .num{font-size:clamp(2.4rem,4.5vw,3.2rem);font-weight:800;color:var(--accent);transition:color 1.2s}
+body.d2 .stat .num{color:var(--blood)}
+.stat .lbl{color:var(--muted);margin-top:8px;font-size:.92rem;transition:color .9s}
+body.d2 .stat .lbl{color:#8d847c}
+
+/* ---------- 口碑 ---------- */
+.testi{background:#e6e1da}
+.tcard{
+  display:flex;gap:20px;align-items:flex-start;background:#fff;border:1px solid #eae6df;
+  border-radius:18px;padding:26px;margin-bottom:18px;
+  transition:background .9s,border-color .9s;
+}
+body.d2 .tcard{background:#1a1714;border-color:#292320}
+.face{width:64px;height:64px;flex:none}
+.face .skin{fill:#f2d8bd;transition:fill 1.4s}
+.face .hair{fill:#3a3230;transition:fill 1.4s}
+.face .eyewhite{fill:#fff}
+.face .pupil{fill:#24201d;transition:fill 1.2s}
+.face .mouth{stroke:#8a5a44;stroke-width:2.2;fill:none;stroke-linecap:round;transition:opacity 1.2s}
+.face .bag{fill:rgba(0,0,0,.28);opacity:0;transition:opacity 1.4s}
+body.d2 .face .skin{fill:#8f8781}
+body.d2 .face .hair{fill:#131110}
+body.d2 .face .pupil{fill:#a40014}
+body.d2 .face .mouth{opacity:0}
+body.d2 .face .bag{opacity:1}
+body.d2 .face{animation:sway 4.5s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+.tcard .who{font-size:.85rem;color:var(--muted);margin-top:10px;transition:color .9s}
+body.d2 .tcard .who{color:#6f6a66}
+.tcard blockquote{margin:0;font-size:1.05rem;line-height:2;color:#33363d;transition:color .9s}
+body.d2 .tcard blockquote{color:#d3ccc3}
+
+/* ---------- CTA ---------- */
+.cta{background:#ddd7cd;text-align:center}
+.cta h2{font-size:clamp(2rem,4.5vw,3rem)}
+.cta .btn-primary{font-size:1.1rem;padding:17px 44px}
+.cta .dwell{margin-top:30px;color:var(--muted);font-size:.9rem;transition:color .9s}
+body.d2 .cta .dwell{color:#8d847c}
+.cta .dwell b{color:var(--accent);transition:color 1s}
+body.d2 .cta .dwell b{color:#d5121f}
+
+/* ---------- 关于 ---------- */
+.about{background:#14110e;color:#d8d2c9}
+.about h2{color:#f0eae0}
+.about .mission{color:#9b9288;line-height:2.1;max-width:36em;font-size:1.05rem}
+.timeline{margin-top:48px;border-left:2px solid #2c2823;padding-left:34px;display:grid;gap:26px}
+.timeline .tl{position:relative}
+.timeline .tl::before{
+  content:"";position:absolute;left:-41px;top:6px;width:12px;height:12px;border-radius:50%;
+  background:#4a443c;transition:background 1.2s,box-shadow 1.2s;
+}
+body.d2 .timeline .tl.hot::before{background:var(--blood);box-shadow:0 0 14px rgba(213,18,31,.8)}
+.timeline .yr{font-weight:800;font-size:1.05rem;color:#e8e0d4}
+.timeline .ds{color:#8f877d;font-size:.93rem;line-height:1.9;margin-top:4px}
+.timeline .tl.hot .yr{color:#d5121f}
+.timeline .tl.hot .ds{color:#b3a99e}
+
+/* ---------- 深渊 ---------- */
+.descent{background:#060505;color:#e9e4da;min-height:110vh}
+.descent h2{
+  font-size:clamp(2.4rem,7vw,4.6rem);font-weight:800;letter-spacing:.05em;
+  color:#efe8dc;text-align:center;
+}
+.descent .under{color:#7e766c;text-align:center;margin-top:26px;font-size:1.05rem;letter-spacing:.3em}
+.descent .mono{
+  margin-top:64px;font-family:ui-monospace,Consolas,"Courier New",monospace;
+  color:#8a2a2a;font-size:.85rem;text-align:center;letter-spacing:.06em;line-height:2.1;
+}
+.descent .mono .ok{color:#4a443c}
+.cursorblink::after{content:"▌";animation:blinkcursor 1s steps(1) infinite;color:#d5121f}
+@keyframes blinkcursor{50%{opacity:0}}
+
+/* ---------- 终局 ---------- */
+.final{
+  background:#000;color:#cfc8bf;min-height:100vh;text-align:center;overflow:hidden;
+}
+.final .eyesbg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8vw;
+  opacity:clamp((var(--dread) - .82) * 6, 0, .16);pointer-events:none;
+}
+.final .eyesbg svg{width:min(30vw,320px)}
+.final .eyesbg .lid{animation:blink 4.6s infinite}
+.final .eyesbg .lid2{animation:blink 5.3s .7s infinite}
+@keyframes blink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.04)}}
+.final-inner{position:relative;z-index:2;max-width:900px;margin:0 auto}
+.final-big{
+  font-size:clamp(3.2rem,12vw,8.5rem);font-weight:900;color:#d5121f;margin:0;
+  letter-spacing:.06em;text-shadow:0 0 34px rgba(213,18,31,.55),0 0 90px rgba(213,18,31,.3);
+  animation:rumble 3.2s steps(3) infinite;
+}
+@keyframes rumble{
+  0%{transform:translate(0,0)}33%{transform:translate(1.6px,-1px)}66%{transform:translate(-1.4px,1.2px)}100%{transform:translate(0,0)}
+}
+.final .lead2{color:#a89f95;line-height:2.2;margin:34px auto 10px;font-size:1.1rem;max-width:30em}
+.final .lead3{color:#5c554d;font-size:.92rem;line-height:2;margin:18px auto 56px}
+.ghost-btn{
+  background:transparent;border:1px solid #3d3733;color:#c7c0b6;padding:15px 46px;border-radius:12px;
+  font-size:1rem;cursor:pointer;transition:border-color .5s,color .5s;
+}
+.ghost-btn:hover{border-color:#d5121f;color:#d5121f}
+.ghost-btn:disabled{cursor:not-allowed}
+.final .foot{margin-top:80px;color:#3c3733;font-size:.78rem;letter-spacing:.14em}
+
+/* ---------- 恐怖层叠效果 ---------- */
+#vignette{
+  position:fixed;inset:0;z-index:80;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.88) 100%);
+  opacity:var(--dread);
+}
+#grain{
+  position:fixed;inset:0;z-index:81;pointer-events:none;opacity:calc(var(--dread) * .14);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+#redpulse{
+  position:fixed;inset:0;z-index:82;pointer-events:none;mix-blend-mode:screen;
+  background:radial-gradient(ellipse at 50% 115%,rgba(178,0,22,.6),transparent 62%);
+  opacity:clamp((var(--dread) - .74) * 3.4, 0, 1);
+}
+#flicker{position:fixed;inset:0;z-index:85;background:#000;opacity:0;pointer-events:none}
+
+/* 低语 */
+.whisper{
+  position:fixed;z-index:70;opacity:0;transition:opacity 1.6s;pointer-events:none;
+  font-weight:200;font-size:1.35rem;letter-spacing:.45em;color:#5a5a5a;
+  text-shadow:0 0 18px rgba(0,0,0,.4);
+}
+.whisper.show{opacity:.5}
+body.d3 .whisper{color:#c1121f}
+
+/* 音效按钮 */
+#audioBtn{
+  position:fixed;right:22px;bottom:22px;z-index:90;cursor:pointer;
+  border:1px solid #d9d6d0;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);
+  color:#55524d;font-size:.82rem;padding:9px 16px;border-radius:999px;
+  transition:background .8s,color .8s,border-color .8s;
+}
+body.d2 #audioBtn{background:rgba(14,12,12,.85);border-color:#3a3430;color:#b3aba1}
+
+/* 文本替换时的 glitch 抖动 */
+.swap-glitch{animation:swapgl .38s steps(2) 3}
+@keyframes swapgl{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(-1.5px,1px);text-shadow:2px 0 #f00,-2px 0 #0ff}
+  50%{transform:translate(1.5px,-1px)}
+  75%{transform:translate(-1px,0);text-shadow:-2px 0 #f00,2px 0 #0ff}
+  100%{transform:none;text-shadow:none}
+}
+
+/* 深度恐惧：整体微颤 */
+body.d3 #page{animation:microshake .22s steps(2) infinite}
+@keyframes microshake{
+  0%{transform:translate(0,0)}25%{transform:translate(.8px,-.5px)}
+  50%{transform:translate(-.7px,.6px)}75%{transform:translate(.5px,.8px)}100%{transform:translate(0,0)}
+}
+
+@media (max-width:860px){
+  .hero-grid{grid-template-columns:1fr}
+  nav .links{display:none}
+  .tcard{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition-duration:.01s !important}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo">☀ 晨曦科技</div>
+  <div class="links">
+    <a href="#features">产品特性</a>
+    <a href="#testimonials">用户口碑</a>
+    <a href="#about">关于我们</a>
+    <a href="#join">加入我们</a>
+  </div>
+  <button class="nav-cta" data-swap-at="0.40" data-swap-text="别犹豫">立即体验</button>
+</nav>
+
+<div id="page">
+
+  <!-- ① HERO -->
+  <header class="sec hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="badge">🆕 晨曦云 4.0 · 正式上线</span>
+        <h1>
+          <span class="h1a">让每一次连接</span><br>
+          <span class="h1b" data-swap-at="0.50" data-swap-text="都有回音">都有温度</span>
+        </h1>
+        <p class="lead" data-swap-at="0.45" data-swap-text="晨曦科技，为 5 亿用户守候每一个深夜。我们始终在线，始终在看你。">晨曦科技，为 5 亿用户提供安全、高效、温暖的数字生活体验。我们始终在线，始终守候。</p>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})">立即开始</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">了解更多</button>
+        </div>
+      </div>
+      <div class="mock reveal">
+        <div class="mock-bar"><i></i><i></i><i></i></div>
+        <div class="mock-body">
+          <div class="mock-side">
+            <i style="width:70%"></i><i style="width:85%"></i><i style="width:60%"></i>
+            <i style="width:75%"></i><i style="width:50%"></i>
+          </div>
+          <div class="mock-main">
+            <div class="mock-chart">
+              <i style="height:34%"></i><i style="height:58%"></i><i style="height:42%"></i>
+              <i style="height:72%"></i><i style="height:50%"></i><i style="height:84%"></i>
+              <i style="height:63%"></i>
+            </div>
+            <div class="mock-rows"><i style="width:88%"></i><i style="width:66%"></i><i style="width:76%"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ② 信任条 -->
+  <section class="sec logos">
+    <div class="wrap">
+      <div class="tag" data-swap-at="0.20" data-swap-text="1,200+ 企业再也没有离开过">1,200+ 企业正在使用晨曦</div>
+      <div class="row reveal"><span>星辰资本</span><span>蓝海物流</span><span>云杉教育</span><span>极光医疗</span><span>远山能源</span></div>
+    </div>
+  </section>
+
+  <!-- ③ 特性 -->
+  <section class="sec features" id="features">
+    <div class="wrap">
+      <h2 class="reveal">为什么选择晨曦？</h2>
+      <p class="sub reveal">三千万行代码，只为了一个字：懂。</p>
+      <div class="grid3">
+        <div class="card reveal">
+          <div class="ico">🔒</div>
+          <h3>极致安全</h3>
+          <p>军工级端到端加密，守护您的每一字节。全天候，无死角，无例外。</p>
+        </div>
+        <div class="card reveal">
+          <div class="ico">⚡</div>
+          <h3>永远在线</h3>
+          <p>99.99% 可用性，全年无休。我们不休息，也从不眨眼。</p>
+        </div>
+        <div class="card reveal">
+          <div class="ico">🏠</div>
+          <h3>温暖陪伴</h3>
+          <p data-swap-at="0.28" data-swap-text="家人，就应该知道你的一切。你的一切。">像家人一样，始终在你身边。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ 数据 -->
+  <section class="sec stats">
+    <div class="wrap">
+      <h2 class="reveal center">用数字说话</h2>
+      <p class="sub reveal center">每一个数字背后，都是一次值得信赖的守候。</p>
+      <div class="grid4 reveal">
+        <div class="stat"><div class="num">5亿+</div><div class="lbl">全球用户信赖</div></div>
+        <div class="stat"><div class="num">99.99%</div><div class="lbl" data-swap-at="0.40" data-swap-text="我们从不闭上眼睛">全年无休在线</div></div>
+        <div class="stat"><div class="num">24h</div><div class="lbl" data-swap-at="0.40" data-swap-text="你睡着的时候，我们也在">每时每刻守候</div></div>
+        <div class="stat"><div class="num">0</div><div class="lbl" data-swap-at="0.40" data-swap-text="我们不知道的事">数据丢失事故</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ 口碑 -->
+  <section class="sec testi" id="testimonials">
+    <div class="wrap">
+      <h2 class="reveal">用户怎么说</h2>
+      <p class="sub reveal">他们来自世界各地。现在，他们都在这里。</p>
+
+      <div class="tcard reveal">
+        <svg class="face" viewBox="0 0 64 64" aria-hidden="true">
+          <path class="hair" d="M2 32 a30 30 0 0 1 60 0 z"/>
+          <circle class="skin" cx="32" cy="33" r="28"/>
+          <ellipse class="eyewhite" cx="22" cy="31" rx="5" ry="6"/>
+          <ellipse class="eyewhite" cx="42" cy="31" rx="5" ry="6"/>
+          <circle class="pupil" cx="22" cy="31" r="2.6"/>
+          <circle class="pupil" cx="42" cy="31" r="2.6"/>
+          <ellipse class="bag" cx="22" cy="39" rx="4" ry="1.6"/>
+          <ellipse class="bag" cx="42" cy="39" rx="4" ry="1.6"/>
+          <path class="mouth" d="M23 45 q9 7 18 0"/>
+        </svg>
+        <div>
+          <blockquote><span data-swap-at="0.52" data-swap-text="「最近孩子说，屏幕后面有人在冲他笑。我检查过了。确实有。」">「界面清爽好用，全家人都很喜欢。孩子写作业时，我也能放心。」</span></blockquote>
+          <div class="who">王女士 · 二孩妈妈 · 使用晨曦 3 年</div>
+        </div>
+      </div>
+
+      <div class="tcard reveal">
+        <svg class="face" viewBox="0 0 64 64" aria-hidden="true">
+          <path class="hair" d="M4 30 a28 28 0 0 1 56 0 l0 8 -56 0 z"/>
+          <circle class="skin" cx="32" cy="34" r="27" style="fill:#e8c9a8"/>
+          <ellipse class="eyewhite" cx="23" cy="32" rx="4.6" ry="5.6"/>
+          <ellipse class="eyewhite" cx="41" cy="32" rx="4.6" ry="5.6"/>
+          <circle class="pupil" cx="23" cy="32" r="2.4"/>
+          <circle class="pupil" cx="41" cy="32" r="2.4"/>
+          <ellipse class="bag" cx="23" cy="40" rx="3.6" ry="1.5"/>
+          <ellipse class="bag" cx="41" cy="40" rx="3.6" ry="1.5"/>
+          <path class="mouth" d="M24 46 q8 6 16 0"/>
+        </svg>
+        <div>
+          <blockquote>「响应速度快得吓人。好像有人一直守在屏幕后面，等着我开口。」</blockquote>
+          <div class="who">李先生 · 独居程序员 · 使用晨曦 1 年</div>
+        </div>
+      </div>
+
+      <div class="tcard reveal">
+        <svg class="face" viewBox="0 0 64 64" aria-hidden="true">
+          <path class="hair" d="M3 31 a29 29 0 0 1 58 0 q-6 -10 -29 -10 t-29 10 z"/>
+          <circle class="skin" cx="32" cy="34" r="27" style="fill:#f5ddc4"/>
+          <ellipse class="eyewhite" cx="22" cy="32" rx="5" ry="6.4"/>
+          <ellipse class="eyewhite" cx="42" cy="32" rx="5" ry="6.4"/>
+          <circle class="pupil" cx="22" cy="32" r="2.8"/>
+          <circle class="pupil" cx="42" cy="32" r="2.8"/>
+          <ellipse class="bag" cx="22" cy="41" rx="4.2" ry="1.8"/>
+          <ellipse class="bag" cx="42" cy="41" rx="4.2" ry="1.8"/>
+          <path class="mouth" d="M25 47 q7 4 14 0"/>
+        </svg>
+        <div>
+          <blockquote>「它比我自己更懂我。有时候我还没想好，答案就来了。它一直在听。」</blockquote>
+          <div class="who">张同学 · 大学生 · 使用晨曦 6 个月</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ CTA -->
+  <section class="sec cta" id="join">
+    <div class="wrap">
+      <h2 class="reveal">准备好加入晨曦了吗？</h2>
+      <p class="sub reveal" style="text-align:center">立即注册，30 秒开始你的温暖数字生活。</p>
+      <button class="btn btn-primary reveal" onclick="document.getElementById('final').scrollIntoView({behavior:'smooth'})">立即加入晨曦</button>
+      <p class="dwell reveal">你已经在这里停留了 <b id="dwell">0</b> 秒 · <span data-swap-at="0.60" data-swap-text="我们已经记住你了。">希望你能找到需要的内容</span></p>
+    </div>
+  </section>
+
+  <!-- ⑦ 关于 -->
+  <section class="sec about" id="about">
+    <div class="wrap">
+      <h2 class="reveal">我们的使命</h2>
+      <p class="mission reveal" data-swap-at="0.72" data-swap-text="晨曦科技成立于 2014 年。十二年来，我们只学一件事：如何不被发现。">晨曦科技成立于 2014 年。十二年来，我们只做一件事：让技术更懂你。</p>
+      <div class="timeline reveal">
+        <div class="tl"><div class="yr">2014 · 晨曦诞生</div><div class="ds">一间地下室，三台服务器，和一个念头。</div></div>
+        <div class="tl"><div class="yr">2018 · 服务一亿家庭</div><div class="ds">他们开始叫我们「管家」。</div></div>
+        <div class="tl"><div class="yr">2022 · 我们学会了倾听</div><div class="ds">哪怕你没有说话。</div></div>
+        <div class="tl"><div class="yr">2025 · 我们学会了等待</div><div class="ds">等待像你这样的人。</div></div>
+        <div class="tl hot"><div class="yr">2026 · 你来了</div><div class="ds">正如我们所料。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑧ 深渊 -->
+  <section class="sec descent">
+    <div class="wrap">
+      <h2 class="scramble" data-final="别再往下滚了">别再往下滚了</h2>
+      <p class="under scramble" data-final="我们数过你的每一次犹豫">我们数过你的每一次犹豫</p>
+      <div class="mono">
+        &gt; 正在生成访客档案 …… <span class="ok">完成 ✓</span><br>
+        &gt; 停留时间 · 滚动速度 · 停顿位置 …… <span class="ok">已记录 ✓</span><br>
+        &gt; 你以为你只是路过 …… <span class="ok">我们不同意 ▌</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑨ 终局 -->
+  <section class="sec final" id="final">
+    <div class="eyesbg" aria-hidden="true">
+      <svg viewBox="0 0 200 100" class="lid">
+        <ellipse cx="100" cy="50" rx="86" ry="42" fill="#e9e4da"/>
+        <circle cx="100" cy="50" r="22" fill="#8f0f1c"/>
+        <circle cx="100" cy="50" r="9" fill="#050505"/>
+      </svg>
+      <svg viewBox="0 0 200 100" class="lid2">
+        <ellipse cx="100" cy="50" rx="86" ry="42" fill="#e9e4da"/>
+        <circle cx="100" cy="50" r="22" fill="#8f0f1c"/>
+        <circle cx="100" cy="50" r="9" fill="#050505"/>
+      </svg>
+    </div>
+    <div class="final-inner">
+      <h2 class="final-big" id="finalBig">你终于来了</h2>
+      <p class="lead2" id="finalSub">从你打开这个页面的那一刻起，<br>我们就一直在看着你。</p>
+      <p class="lead3">每一次滚动、每一次停顿、每一次犹豫——我们都记得。</p>
+      <button class="ghost-btn" id="fakeBack">返回首页</button>
+      <div class="foot">© 2014–2026 晨曦科技 · 你已经是我们的用户了 · 无需注册，无法注销</div>
+    </div>
+  </section>
+
+</div><!-- /#page -->
+
+<!-- 全局效果层 -->
+<div id="vignette"></div>
+<div id="grain"></div>
+<div id="redpulse"></div>
+<div id="flicker"></div>
+<button id="audioBtn">🎧 音效：关</button>
+
+<script>
+(function(){
+  "use strict";
+  var $  = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  /* ---------------- 恐怖进度：由滚动位置驱动 ---------------- */
+  var dread = 0, ticking = false;
+
+  function compute(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    dread = Math.min(1, Math.max(0, (window.scrollY || 0) / (h || 1)));
+    document.documentElement.style.setProperty("--dread", dread.toFixed(4));
+
+    document.body.classList.toggle("d1", dread > 0.38);
+    document.body.classList.toggle("d2", dread > 0.58);
+    document.body.classList.toggle("d3", dread > 0.82);
+
+    $("#nav").classList.toggle("scrolled", (window.scrollY||0) > 80);
+    updateTitle();
+    applySwaps();
+  }
+  function onScroll(){
+    if(!ticking){
+      ticking = true;
+      requestAnimationFrame(function(){ compute(); ticking = false; });
+    }
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  window.addEventListener("resize", onScroll);
+
+  /* ---------------- 标签页标题逐渐失控 ---------------- */
+  var TITLE = "晨曦科技 · 让连接更有温度";
+  function updateTitle(){
+    document.title = dread > 0.92 ? "它就在下面"
+                   : dread > 0.72 ? "别往下看了"
+                   : dread > 0.50 ? "你还在看……"
+                   : TITLE;
+  }
+
+  /* ---------------- 文本替换（带 glitch 动画，可逆） ---------------- */
+  var CHAOS = "▓▒░#&$@?!%*<>";
+  function glitchSwap(el, txt){
+    el.classList.add("swap-glitch");
+    var buf = txt.split(""), frame = 0;
+    var iv = setInterval(function(){
+      frame++;
+      var reveal = Math.floor(buf.length * frame / 8);
+      el.textContent = buf.map(function(c,i){
+        return i < reveal ? c : CHAOS[(Math.random()*CHAOS.length)|0];
+      }).join("");
+      if(frame >= 8){
+        clearInterval(iv);
+        el.textContent = txt;
+        setTimeout(function(){ el.classList.remove("swap-glitch"); }, 140);
+      }
+    }, 42);
+  }
+  $$("[data-swap-at]").forEach(function(el){
+    el.dataset.orig = el.textContent;
+    el.dataset.swapActive = "0";
+  });
+  function applySwaps(){
+    $$("[data-swap-at]").forEach(function(el){
+      var at = parseFloat(el.dataset.swapAt);
+      var active = el.dataset.swapActive === "1";
+      if(!active && dread >= at){
+        el.dataset.swapActive = "1";
+        glitchSwap(el, el.dataset.swapText);
+      } else if(active && dread < at - 0.06){
+        el.dataset.swapActive = "0";
+        glitchSwap(el, el.dataset.orig);
+      }
+    });
+  }
+
+  /* ---------------- 停留计时 ---------------- */
+  var t0 = Date.now();
+  setInterval(function(){
+    var s = Math.floor((Date.now() - t0) / 1000);
+    var el = $("#dwell");
+    if(el) el.textContent = s;
+  }, 1000);
+
+  /* ---------------- 深渊区乱码解码效果 ---------------- */
+  function scramble(el){
+    var final = el.dataset.final || el.textContent;
+    var f = 0, GLYPHS = "▓▒░#%&@$?!";
+    var iv = setInterval(function(){
+      f++;
+      var reveal = Math.floor(final.length * f / 12);
+      el.textContent = final.split("").map(function(c,i){
+        if(i < reveal) return c;
+        if(c === " " || Math.random() < 0.35) return c;
+        return GLYPHS[(Math.random()*GLYPHS.length)|0];
+      }).join("");
+      if(f >= 12){ clearInterval(iv); el.textContent = final; }
+    }, 55);
+  }
+  var so = new IntersectionObserver(function(es){
+    es.forEach(function(en){
+      if(en.isIntersecting){ scramble(en.target); so.unobserve(en.target); }
+    });
+  }, {threshold:0.4});
+  $$(".scramble").forEach(function(el){ so.observe(el); });
+
+  /* ---------------- 入场显现 ---------------- */
+  var ro = new IntersectionObserver(function(es){
+    es.forEach(function(en){ if(en.isIntersecting) en.target.classList.add("in"); });
+  }, {threshold:0.15});
+  $$(".reveal").forEach(function(el){ ro.observe(el); });
+
+  /* ---------------- 头像的眼睛跟着鼠标 ---------------- */
+  window.addEventListener("pointermove", function(e){
+    $$(".face").forEach(function(f){
+      var r = f.getBoundingClientRect();
+      if(r.bottom < 0 || r.top > window.innerHeight) return;
+      var ang = Math.atan2(e.clientY - (r.top + r.height/2), e.clientX - (r.left + r.width/2));
+      var dx = Math.cos(ang) * 2.2, dy = Math.sin(ang) * 2.2;
+      f.querySelectorAll(".pupil").forEach(function(p){
+        p.setAttribute("transform", "translate(" + dx.toFixed(2) + "," + dy.toFixed(2) + ")");
+      });
+    });
+  }, {passive:true});
+
+  /* ---------------- 低语 ---------------- */
+  var WHISPERS = ["别停下","快到了","你听到了吗","回头看看","我们就在下面","再滚一格","别怕","它醒了","就差一点了"];
+  setInterval(function(){
+    if(dread > 0.45 && Math.random() < 0.72) spawnWhisper();
+  }, 4200);
+  function spawnWhisper(){
+    var d = document.createElement("div");
+    d.className = "whisper";
+    d.textContent = WHISPERS[(Math.random()*WHISPERS.length)|0];
+    d.style.left = (8 + Math.random()*70) + "vw";
+    d.style.top  = (12 + Math.random()*70) + "vh";
+    document.body.appendChild(d);
+    requestAnimationFrame(function(){ d.classList.add("show"); });
+    setTimeout(function(){
+      d.classList.remove("show");
+      setTimeout(function(){ d.remove(); }, 1700);
+    }, 2400);
+  }
+
+  /* ---------------- 随机闪烁 ---------------- */
+  setInterval(function(){
+    if(dread > 0.55 && Math.random() < 0.5){
+      var f = $("#flicker"), n = 0;
+      var iv = setInterval(function(){
+        f.style.opacity = (n % 2) ? 0 : (0.10 + Math.random() * 0.22);
+        if(++n > 5){ f.style.opacity = 0; clearInterval(iv); }
+      }, 55);
+    }
+  }, 6000);
+
+  /* ---------------- 终局按钮 ---------------- */
+  var fb = $("#fakeBack");
+  fb.addEventListener("click", function(){
+    var f = $("#flicker");
+    f.style.transition = "none";
+    f.style.opacity = 0.92;
+    setTimeout(function(){ f.style.transition = "opacity .9s"; f.style.opacity = 0; }, 70);
+    $("#finalBig").textContent = "太迟了";
+    $("#finalSub").innerHTML = "没有人能从这里返回。<br>从来没有人。";
+    fb.textContent = "已经回不去了";
+    fb.disabled = true;
+    console.log("%c太迟了。", "color:#d5121f;font-size:24px;font-weight:bold");
+  });
+
+  /* ---------------- 控制台低语 ---------------- */
+  console.log("%c晨曦科技 · 感谢您的访问 :)", "color:#3468ff;font-size:14px");
+  var milestones = { a:false, b:false, c:false };
+  setInterval(function(){
+    if(dread > 0.5 && !milestones.a){ milestones.a = true; console.log("%c我们已经注意到你了。", "color:#b3001b"); }
+    if(dread > 0.75 && !milestones.b){ milestones.b = true; console.log("%c你还在往下滚。很好。", "color:#b3001b"); }
+    if(dread > 0.95 && !milestones.c){ milestones.c = true; console.log("%c欢迎回家。", "color:#d5121f;font-size:20px;font-weight:bold"); }
+  }, 800);
+
+  /* ---------------- 环境音效（可选，需手动开启） ---------------- */
+  var AC = null, master, osc1, osc2, noiseGain, audioOn = false;
+  var btn = $("#audioBtn");
+  btn.addEventListener("click", function(){
+    audioOn = !audioOn;
+    btn.textContent = audioOn ? "🎧 音效：开" : "🎧 音效：关";
+    if(audioOn){
+      if(!AC) buildAudio();
+      AC.resume();
+      master.gain.setTargetAtTime(0.5, AC.currentTime, 0.6);
+    } else if(AC){
+      master.gain.setTargetAtTime(0, AC.currentTime, 0.25);
+    }
+  });
+  function buildAudio(){
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    master = AC.createGain(); master.gain.value = 0; master.connect(AC.destination);
+
+    // 低频双振荡器：缓慢拍频，营造不安的嗡鸣
+    osc1 = AC.createOscillator(); osc1.frequency.value = 55;
+    osc2 = AC.createOscillator(); osc2.frequency.value = 55.6;
+    var g1 = AC.createGain(); g1.gain.value = 0.07;
+    var g2 = AC.createGain(); g2.gain.value = 0.055;
+    osc1.connect(g1); g1.connect(master);
+    osc2.connect(g2); g2.connect(master);
+    osc1.start(); osc2.start();
+
+    // 气流噪声
+    var len = AC.sampleRate * 2, buf = AC.createBuffer(1, len, AC.sampleRate), data = buf.getChannelData(0);
+    for(var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    var src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+    var bp = AC.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 750; bp.Q.value = 0.6;
+    noiseGain = AC.createGain(); noiseGain.gain.value = 0;
+    src.connect(bp); bp.connect(noiseGain); noiseGain.connect(master);
+    src.start();
+  }
+  // 恐怖进度越高，声音越失谐、越嘈杂
+  setInterval(function(){
+    if(!AC || !audioOn) return;
+    osc2.frequency.setTargetAtTime(55.6 + dread * 16, AC.currentTime, 0.6);
+    noiseGain.gain.setTargetAtTime(dread * 0.06 + (dread > 0.8 ? 0.035 : 0), AC.currentTime, 0.6);
+  }, 300);
+  // 深处的心跳
+  function thump(t){
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.frequency.setValueAtTime(62, t);
+    o.frequency.exponentialRampToValueAtTime(30, t + 0.16);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.28, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.32);
+  }
+  setInterval(function(){
+    if(!AC || !audioOn || dread <= 0.72) return;
+    var t = AC.currentTime;
+    thump(t); thump(t + 0.3);
+  }, 1350);
+
+  compute();
+})();
+</script>
+</body>
+</html>
